@@ -1,208 +1,153 @@
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 using namespace std;
 
-/*******************************************
- * Completez le programme a partir d'ici.
- *******************************************/
- // Chaines de caractères à utiliser pour les affichages:
- /*
-
- été jeté
-
- d'un
-
- n'est
-
- L'oeuvre
-
- bibliothèque
-
- détruit
-
- */
-class Auteur
-{
+class Souris {
 private:
-    string nom;
-    bool prime;
+    double poids;
+    string couleur;
+    unsigned int age;
+    unsigned int esperance_vie;
+    bool clonee;
+
 public:
-    Auteur(string n, bool p = false) : nom(n), prime(p) {}
-    Auteur(Auteur const&) = delete;
-    string getNom() const
-    {
-        return nom;
+    // Constructeur avec paramètres
+    Souris(double p, string c, unsigned int a = 0, unsigned int e_v = 36)
+        : poids(p), couleur(c), age(a), esperance_vie(e_v), clonee(false) {
+        cout << "Une nouvelle souris !" << endl;
     }
-    bool getPrix() const
-    {
-        return prime;
+
+    // Constructeur de copie
+    Souris(const Souris& other)
+        : poids(other.poids), couleur(other.couleur), age(other.age),
+          esperance_vie(other.esperance_vie * 0.8), clonee(true) {
+        cout << "Clonage d’une souris !" << endl;
+    }
+
+    // Destructeur
+    ~Souris() {
+        cout << "Fin d’une souris..." << endl;
+    }
+
+    // Méthode d'affichage
+    void afficher() const {
+        cout << "Une souris " << couleur;
+        if (clonee) {
+            cout << ", clonee";
+        }
+        cout << " de " << age << " mois et pesant " << poids << " grammes" << endl;
+    }
+
+    // Méthode pour vieillir la souris
+    void vieillir() {
+        age++;
+        if (clonee && age > esperance_vie / 2) {
+            couleur = "verte";  // La souris devient verte si elle a plus de la moitié de son espérance de vie.
+        }
+    }
+
+    // Méthode pour faire évoluer la souris
+    void evolue() {
+        while (age < esperance_vie) {
+            vieillir();
+        }
+    }
+
+    // Méthode pour vérifier si la souris est encore en vie
+    bool estVive() const {
+        return age < esperance_vie;
+    }
+
+    // Méthode pour obtenir l'âge de la souris
+    unsigned int getAge() const {
+        return age;
+    }
+
+    // Méthode pour obtenir le poids de la souris
+    double getPoids() const {
+        return poids;
+    }
+
+    // Méthode pour obtenir la couleur de la souris
+    string getCouleur() const {
+        return couleur;
+    }
+
+    // Méthode pour obtenir l'espérance de vie de la souris
+    unsigned int getEsperanceVie() const {
+        return esperance_vie;
     }
 };
-class Oeuvre
-{
+
+class PopulationSouris {
 private:
-    string titre, langue;
-    Auteur* auteur;
+    vector<Souris> souris;
+    unsigned int taille_population;
+
 public:
-    Oeuvre(string t, Auteur& a, string l) : titre(t), auteur(&a), langue(l) {}
-    Oeuvre(Oeuvre const&) = delete;
-    string getTitre()
-    {
-        return titre;
-    }
-    Auteur& getAuteur() const
-    {
-        return *auteur;
-    }
-    string getLangue() const
-    {
-        return langue;
-    }
-    void affiche() const
-    {
-        cout << titre << ", " << (*auteur).getNom() << ", en " << langue << endl;
-    }
-    ~Oeuvre() { cout << "L'oeuvre \"" << titre << ", " << (*auteur).getNom() << ", en " << langue << "\" n'est plus disponible." << endl; }
-};
-class Exemplaire
-{
-private:
-    Oeuvre& livre;
-public:
-    Exemplaire(Oeuvre& l) : livre(l)
-    {
-        cout << "Nouvel exemplaire de : ";
-        livre.affiche();
-        cout << endl;
-    }
-    Exemplaire(Exemplaire const& copie) : livre(copie.livre)
-    {
-        cout << "Copie d'un exemplaire de : " << livre.getTitre() << ", " << livre.getAuteur().getNom() << " en " << livre.getLangue() << "\n";
+    // Constructeur
+    PopulationSouris(unsigned int taille) : taille_population(taille) {
+        for (unsigned int i = 0; i < taille_population; i++) {
+            souris.push_back(Souris(45.0, "blanche"));
+        }
     }
 
-    Oeuvre& getOeuvre()
-    {
-        return livre;
+    // Méthode pour faire évoluer toute la population
+    void evoluerPopulation() {
+        for (auto& souris_individuelle : souris) {
+            souris_individuelle.evolue();
+        }
     }
-    void affiche()
-    {
-        cout << "Exemplaire de : " << livre.getTitre() << ", " << livre.getAuteur().getNom() << ", en " << livre.getLangue() << " ";
+
+    // Méthode pour afficher la population
+    void afficherPopulation() const {
+        for (const auto& souris_individuelle : souris) {
+            souris_individuelle.afficher();
+        }
     }
-    ~Exemplaire()
-    {
-        cout << "Un exemplaire de \"" << livre.getTitre() << " , " << livre.getAuteur().getNom() << ", en " << livre.getLangue() << "\" a été jeté !\n";
+
+    // Méthode pour cloner une souris de la population
+    void clonerSouris(unsigned int index) {
+        if (index < souris.size()) {
+            Souris souris_clone(souris[index]);
+            souris.push_back(souris_clone);
+        }
+    }
+
+    // Méthode pour éliminer les souris mortes
+    void nettoyerPopulation() {
+        vector<Souris> nouvelles_souris;
+        for (const auto& souris_individuelle : souris) {
+            if (souris_individuelle.estVive()) {
+                nouvelles_souris.push_back(souris_individuelle);
+            }
+        }
+        souris = nouvelles_souris;
+    }
+
+    // Méthode pour obtenir la taille de la population
+    unsigned int getTaillePopulation() const {
+        return souris.size();
     }
 };
-class Bibliotheque
-{
-private:
-    string bnom;
-    vector<Exemplaire*>ex;
-public:
-    Bibliotheque(string n) : bnom(n) { cout << "La bibliothèque " << bnom << " est ouverte !" << endl; }
 
-    string getNom()
-    {
-        return bnom;
-    }
-    void stocker(Oeuvre& l, int n = 1)
-    {
-        for (int i = 0; i < n; i++)
-        {
-            Exemplaire* livre = new Exemplaire(l);
-            ex.push_back(livre);
-        }
+int main() {
+    PopulationSouris population(10);  // Création d'une population de 10 souris
+    population.afficherPopulation();
 
-    }
-    int compter_exemplaires(Oeuvre& book)
-    {
-        int sum = 0;
-        for (unsigned int i = 0; i < ex.size(); i++)
-        {
-            if ((book.getTitre() == ex[i]->getOeuvre().getTitre()) && (book.getLangue() == ex[i]->getOeuvre().getLangue()))
-            {
-                sum++;
-            }
-        }
-        return sum;
-    }
-    void lister_exemplaires(string l = "")
-    {
-        for (unsigned int i = 0; i < ex.size(); i++)
-        {
-            if ((l == "") || (l == ex[i]->getOeuvre().getLangue()))
-            {
-                ex[i]->affiche();
-                cout << "\n";
-            }
-        }
-    }
-    void afficher_auteurs(bool x = false)
-    {
-        if (x == true)
-        {
-            for (int i = 0; i < ex.size(); i++)
-            {
-                if (ex[i]->getOeuvre().getAuteur().getPrix() == true)
-                {
-                    cout << ex[i]->getOeuvre().getAuteur().getNom() << endl;
-                }
-            }
-        }
-        else
-        {
-            for (int i = 0; i < ex.size(); i++)
-            {
-                cout << ex[i]->getOeuvre().getAuteur().getNom() << endl;
-            }
-        }
-    }
-    ~Bibliotheque()
-    {
-        cout << "La bibliothèque " << bnom << " ferme ses portes," << endl << "et détruit ses exemplaires :" << endl;
-        for (int i = 0; i < ex.size(); i++)
-        {
-            ex[i]->~Exemplaire();
-        }
-    }
-};
-/*******************************************
- * Ne rien modifier apres cette ligne.
- *******************************************/
+    cout << "\nEvolution de la population...\n";
+    population.evoluerPopulation();  // Faire évoluer toute la population
 
-int main()
-{
-    Auteur a1("Victor Hugo"),
-        a2("Alexandre Dumas"),
-        a3("Raymond Queneau", true);
+    population.afficherPopulation();
 
-    Oeuvre o1("Les Misérables", a1, "français"),
-        o2("L'Homme qui rit", a1, "français"),
-        o3("Le Comte de Monte-Cristo", a2, "français"),
-        o4("Zazie dans le métro", a3, "français"),
-        o5("The Count of Monte-Cristo", a2, "anglais");
+    cout << "\nClonage d'une souris (index 0)...\n";
+    population.clonerSouris(0);  // Clonage de la souris d'index 0
+    population.afficherPopulation();
 
-    Bibliotheque biblio("municipale");
-    biblio.stocker(o1, 2);
-    biblio.stocker(o2);
-    biblio.stocker(o3, 3);
-    biblio.stocker(o4);
-    biblio.stocker(o5);
-
-    cout << "La bibliothèque " << biblio.getNom()
-        << " offre les exemplaires suivants :" << endl;
-    biblio.lister_exemplaires();
-
-    const string langue("anglais");
-    cout << " Les exemplaires en " << langue << " sont :" << endl;
-    biblio.lister_exemplaires(langue);
-
-    cout << " Les auteurs à succès sont :" << endl;
-    biblio.afficher_auteurs(true);
-
-    cout << " Il y a " << biblio.compter_exemplaires(o3) << " exemplaires de "
-        << o3.getTitre() << endl;
+    cout << "\nNettoyage de la population (élimination des souris mortes)...\n";
+    population.nettoyerPopulation();  // Éliminer les souris mortes
+    population.afficherPopulation();
 
     return 0;
 }
